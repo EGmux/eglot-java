@@ -92,7 +92,7 @@
 (require 'json)
 
 (defgroup eglot-java
-    nil
+  nil
   "Interaction with a Java language server via eglot."
   :prefix "eglot-java-"
   :group 'eglot
@@ -106,11 +106,18 @@
 
 (defcustom eglot-java-eclipse-jdt-args
   '("-Xmx1G"
+    "-Declipse.application=org.eclipse.jdt.ls.core.id1"
+    "-Dosgi.bundles.defaultStartLevel=4"
+    "-Declipse.product=org.eclipse.jdt.ls.core.product"
+    "-Dosgi.sharedConfiguration.area=/nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/jdtls/config_linux"
+    "-Dosgi.sharedConfiguration.area.readOnly=true"
+    "-Dosgi.checkConfiguration=true"
+    "-Dosgi.configuration.cascaded=true"
+    "-Dlog.level=ALL $JAVA_OPTS"
+    "-jar ix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/jdtls/plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar"
     "--add-modules=ALL-SYSTEM"
-    "--add-opens"
-    "java.base/java.util=ALL-UNNAMED"
-    "--add-opens"
-    "java.base/java.lang=ALL-UNNAMED")
+    "--add-opens java.base/java.util=ALL-UNNAMED"
+    "--add-opens java.base/java.lang=ALL-UNNAMED")
   "Eclipse JDT JVM arguments."
   :type '(repeat string)
   :risky t
@@ -240,14 +247,14 @@ the package name."
 (defconst eglot-java-spring-io-excluded-input-params '("_links" "dependencies") "Excluded spring starter input parameters.")
 
 (defvar eglot-java-starterkits-info-by-starterkit-name
-      #s(hash-table test equal
-                    data ("maven"     ()
-                          "gradle"    ()
-                          "spring"    (:url "https://start.spring.io"     :metadata #s(hash-table test equal))
-                          "micronaut" (:url "https://launch.micronaut.io" :metadata #s(hash-table test equal))
-                          "quarkus"   (:url "https://code.quarkus.io"     :metadata #s(hash-table test equal))
-                          "vertx"     (:url "https://start.vertx.io"      :metadata #s(hash-table test equal))))
-      "Starter kits metadata for new project wizards.")
+  #s(hash-table test equal
+                data ("maven"     ()
+                      "gradle"    ()
+                      "spring"    (:url "https://start.spring.io"     :metadata #s(hash-table test equal))
+                      "micronaut" (:url "https://launch.micronaut.io" :metadata #s(hash-table test equal))
+                      "quarkus"   (:url "https://code.quarkus.io"     :metadata #s(hash-table test equal))
+                      "vertx"     (:url "https://start.vertx.io"      :metadata #s(hash-table test equal))))
+  "Starter kits metadata for new project wizards.")
 
 (defvar eglot-java-project-new-directory nil "The newly created java project directory location.")
 (make-variable-buffer-local 'eglot-java-project-new-directory)
@@ -359,7 +366,7 @@ ones and overrule settings in the other lists."
 If INTERACTIVE, prompt user for details."
   (cl-labels
       ((is-the-jar
-           (path)
+         (path)
          (and (string-match-p
                "org\\.eclipse\\.equinox\\.launcher_.*\\.jar$"
                (file-name-nondirectory path))
@@ -369,15 +376,15 @@ If INTERACTIVE, prompt user for details."
            (jar cp-jar)
            (dir
             (cond
-              (jar (file-name-as-directory
-                    (expand-file-name ".." (file-name-directory jar))))
-              (interactive
-               (expand-file-name
-                (read-directory-name
-                 (concat "Path to eclipse.jdt.ls directory (could not"
-                         " find it in CLASSPATH): ")
-                 nil nil t)))
-              (t (error "Could not find eclipse.jdt.ls jar in CLASSPATH"))))
+             (jar (file-name-as-directory
+                   (expand-file-name ".." (file-name-directory jar))))
+             (interactive
+              (expand-file-name
+               (read-directory-name
+                (concat "Path to eclipse.jdt.ls directory (could not"
+                        " find it in CLASSPATH): ")
+                nil nil t)))
+             (t (error "Could not find eclipse.jdt.ls jar in CLASSPATH"))))
            (repodir
             (concat dir
                     "org.eclipse.jdt.ls.product/target/repository/"))
@@ -420,7 +427,7 @@ If INTERACTIVE, prompt user for details."
               "-data" workspace))))))
 
 (cl-defmethod eglot-execute-command
-    ((_server eglot-java-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
+  ((_server eglot-java-eclipse-jdt) (_cmd (eql java.apply.workspaceEdit)) arguments)
   "Eclipse JDT breaks spec and replies with edits as arguments."
   (mapc #'eglot--apply-workspace-edit arguments))
 
@@ -460,8 +467,8 @@ Otherwise returns nil"
   (let* ((install-dir           (file-name-as-directory
                                  (expand-file-name eglot-java-server-install-dir)))
          (equinox-launcher-jar  (car (directory-files-recursively install-dir
-                                                      "^org.eclipse.equinox.launcher_.*.jar$"
-                                                      t))))
+                                                                  "^org.eclipse.equinox.launcher_.*.jar$"
+                                                                  t))))
     (when (not equinox-launcher-jar)
       (user-error "Could not find Eclipse OSGI jar launcher!"))
     (expand-file-name equinox-launcher-jar install-dir)))
@@ -471,7 +478,7 @@ Otherwise returns nil"
   (let ((cp (getenv "CLASSPATH")))
     (setenv "CLASSPATH" (concat cp path-separator (eglot-java--find-equinox-launcher)))
     (unwind-protect
-         (eglot-java--eclipse-jdt-contact nil)
+        (eglot-java--eclipse-jdt-contact nil)
       (setenv "CLASSPATH" cp))))
 
 (defun eglot-java--project-name-maven (root)
@@ -552,11 +559,11 @@ Otherwise the basename of the folder ROOT will be returned."
                                size 6
                                test equal
                                data ("Class"      "public class %s {\n\n}"
-                                                  "Record"     "public record %s () {}"
-                                                  "Enum"       "public enum %s {\n\n}"
-                                                  "Interface"  "public interface %s {\n\n}"
-                                                  "Annotation" "public @interface %s {\n\n}"
-                                                  "Test"       "import org.junit.jupiter.api.Assertions;\n
+                                     "Record"     "public record %s () {}"
+                                     "Enum"       "public enum %s {\n\n}"
+                                     "Interface"  "public interface %s {\n\n}"
+                                     "Annotation" "public @interface %s {\n\n}"
+                                     "Test"       "import org.junit.jupiter.api.Assertions;\n
 import org.junit.jupiter.api.Test;\n\npublic class %s {\n\n}")))
          (source-list       (eglot-execute-command
                              (eglot-java--find-server)
@@ -573,7 +580,7 @@ import org.junit.jupiter.api.Test;\n\npublic class %s {\n\n}")))
                                            (unless (string-empty-p package)
                                              (concat package ".")))))
          (class-type        (when eglot-java-file-new-ask-type
-                                (completing-read "Type: " (hash-table-keys class-by-type))))
+                              (completing-read "Type: " (hash-table-keys class-by-type))))
          (selected-source   (car (cl-remove-if-not
                                   (lambda (e)
                                     (string= (plist-get e :displayPath) selected-path))
@@ -819,17 +826,17 @@ debug mode."
         (mvn-archetype-artifact-id (read-string         "Enter archetype artifact id: " "maven-archetype-quickstart")))
     (unless (file-exists-p mvn-project-parent-dir)
       (make-directory mvn-project-parent-dir t))
-      (let* ((b        (eglot-java--build-run mvn-project-parent-dir
-                                              (eglot-java--build-executable "mvn" "mvnw" mvn-project-parent-dir)
-                                              (concat " archetype:generate "
-                                                      " -DgroupId=" mvn-group-id
-                                                      " -DartifactId=" mvn-artifact-id
-                                                      " -DarchetypeArtifactId=" mvn-archetype-artifact-id
-                                                      " -DinteractiveMode=false")))
-             (dest-dir (expand-file-name mvn-artifact-id mvn-project-parent-dir))
-             (p        (get-buffer-process b)))
-        (with-current-buffer b
-          (setq eglot-java-project-new-directory dest-dir))
+    (let* ((b        (eglot-java--build-run mvn-project-parent-dir
+                                            (eglot-java--build-executable "mvn" "mvnw" mvn-project-parent-dir)
+                                            (concat " archetype:generate "
+                                                    " -DgroupId=" mvn-group-id
+                                                    " -DartifactId=" mvn-artifact-id
+                                                    " -DarchetypeArtifactId=" mvn-archetype-artifact-id
+                                                    " -DinteractiveMode=false")))
+           (dest-dir (expand-file-name mvn-artifact-id mvn-project-parent-dir))
+           (p        (get-buffer-process b)))
+      (with-current-buffer b
+        (setq eglot-java-project-new-directory dest-dir))
       (set-process-sentinel p #'eglot-java--project-new-process-sentinel))))
 
 (defun eglot-java--project-new-gradle ()
@@ -1008,16 +1015,16 @@ debug mode."
                                                                                        starter-metadata))))))))
                              elems))
          (simple-deps       (completing-read-multiple "Select dependencies (comma separated, TAB to add more): "
-                                                             (mapcan
-                                                              (lambda (s)
-                                                                (mapcar
-                                                                 (lambda (f)
-                                                                   (gethash "id" f))
-                                                                 s))
-                                                              (mapcar
-                                                               (lambda (x)
-                                                                 (gethash "values" x))
-                                                               (gethash "values"  (gethash "dependencies" starter-metadata ))))))
+                                                      (mapcan
+                                                       (lambda (s)
+                                                         (mapcar
+                                                          (lambda (f)
+                                                            (gethash "id" f))
+                                                          s))
+                                                       (mapcar
+                                                        (lambda (x)
+                                                          (gethash "values" x))
+                                                        (gethash "values"  (gethash "dependencies" starter-metadata ))))))
          (dest-dir          (read-directory-name "Project Directory: "
                                                  (expand-file-name (cadr (assoc "artifactId" simple-params)) eglot-java-workspace-folder))))
     (unless (file-exists-p dest-dir)
@@ -1095,7 +1102,7 @@ debug mode."
          (stream-id                   (plist-get (gethash quarkus-version metadata-by-quarkus-version)
                                                  :stream-id))
          (dest-dir                    (read-directory-name "Project Parent Directory: "
-                                                                (expand-file-name eglot-java-workspace-folder))))
+                                                           (expand-file-name eglot-java-workspace-folder))))
     (unless (file-exists-p dest-dir)
       (make-directory dest-dir t))
     (let ((large-file-warning-threshold nil)
@@ -1334,10 +1341,10 @@ METADATA is the JSON API response contents."
   "Upgrade the LSP server installation in a given directory.
 INSTALL-DIR is the directory where the LSP server will be upgraded."
   (let* ((buffers-managed (cl-loop for buf in (buffer-list)
-                                if (with-current-buffer buf
-                                     (when eglot-java-mode
-                                       buf))
-                                collect buf))
+                                   if (with-current-buffer buf
+                                        (when eglot-java-mode
+                                          buf))
+                                   collect buf))
          (time-cur        (current-time))
          (tmp-folder-name (format "jdtls-%d-%d" (car time-cur) (cadr time-cur)))
          (install-dir-tmp (expand-file-name tmp-folder-name (temporary-file-directory))))
@@ -1411,26 +1418,26 @@ DESTINATION-DIR is the directory where the LSP server will be installed."
       (unless eglot-java-jdt-uri-handling-patch-applied
         (eglot-java--jdthandler-patch-eglot)
         (setq eglot-java-jdt-uri-handling-patch-applied t))
-    (unless eglot-java-eglot-server-programs-manual-updates
-      ;; there are multiple allowed syntaxes for mode associations
-      (let ((existing-java-related-assocs (mapcan (lambda (item)
-                                                    (if (listp (car item))
-                                                        (when (member 'java-mode (car item))
-                                                          (car item))
-                                                      (when (eq 'java-mode (car item))
-                                                        (cons (car item) nil))))
-                                                  eglot-server-programs)))
-        (if existing-java-related-assocs
-            (let ((eff-existing-java-related-assocs (if (= 1 (length existing-java-related-assocs))
-                                                        (if (assq existing-java-related-assocs eglot-server-programs)
-                                                            existing-java-related-assocs
-                                                          (car existing-java-related-assocs))
-                                                      existing-java-related-assocs)))
-              (unless (eq 'eglot-java--eclipse-contact (assq eff-existing-java-related-assocs eglot-server-programs))
-                (setcdr (assoc eff-existing-java-related-assocs eglot-server-programs) 'eglot-java--eclipse-contact)))
-          (add-to-list eglot-server-programs 'java-mode 'eglot-java--eclipse-contact))))
-    (unless (member 'eglot-java--project-try project-find-functions)
-      (add-to-list 'project-find-functions 'eglot-java--project-try t)))))
+      (unless eglot-java-eglot-server-programs-manual-updates
+        ;; there are multiple allowed syntaxes for mode associations
+        (let ((existing-java-related-assocs (mapcan (lambda (item)
+                                                      (if (listp (car item))
+                                                          (when (member 'java-mode (car item))
+                                                            (car item))
+                                                        (when (eq 'java-mode (car item))
+                                                          (cons (car item) nil))))
+                                                    eglot-server-programs)))
+          (if existing-java-related-assocs
+              (let ((eff-existing-java-related-assocs (if (= 1 (length existing-java-related-assocs))
+                                                          (if (assq existing-java-related-assocs eglot-server-programs)
+                                                              existing-java-related-assocs
+                                                            (car existing-java-related-assocs))
+                                                        existing-java-related-assocs)))
+                (unless (eq 'eglot-java--eclipse-contact (assq eff-existing-java-related-assocs eglot-server-programs))
+                  (setcdr (assoc eff-existing-java-related-assocs eglot-server-programs) 'eglot-java--eclipse-contact)))
+            (add-to-list eglot-server-programs 'java-mode 'eglot-java--eclipse-contact))))
+      (unless (member 'eglot-java--project-try project-find-functions)
+        (add-to-list 'project-find-functions 'eglot-java--project-try t)))))
 
 (defvar eglot-java-mode-map (make-sparse-keymap))
 
@@ -1567,7 +1574,7 @@ return the first one."
 
 ;;;###autoload
 (define-minor-mode eglot-java-mode
-    "Toggle eglot-java-mode."
+  "Toggle eglot-java-mode."
   ;; The initial value.
   :init-value nil
   ;; The indicator for the mode line.
