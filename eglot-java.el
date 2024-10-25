@@ -114,7 +114,7 @@
     "-Dosgi.checkConfiguration=true" 
     "-Dosgi.configuration.cascaded=true" 
     "-Dlog.level=ALL $JAVA_OPTS" 
-    "-jar /nix/store/15dvj1sywr30z2j9ffdh07kgy75jr010-jdt-language-server-1.26.0/share/java/plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar " 
+    "-jar /nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/plugins/org.eclipse.equinox.launcher_1.6.700.v20231214-2017.jar " 
     "--add-modules=ALL-SYSTEM" 
     "--add-opens java.base/java.util=ALL-UNNAMED" 
     "--add-opens java.base/java.lang=ALL-UNNAMED \"$@\""
