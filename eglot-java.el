@@ -584,7 +584,7 @@ import org.junit.jupiter.api.Test;\n\npublic class %s {\n\n}")))
          (selected-source   (car (cl-remove-if-not
                                   (lambda (e)
                                     (string= (plist-get e :displayPath) selected-path))
-                                  source-paths )))
+                                  source-paths)))
          (path-elements     (split-string fqcn "\\."))
          (new-paths         (butlast path-elements))
          (dest-folder       (file-name-as-directory
@@ -750,8 +750,8 @@ JVM is started in debug mode."
                    " -cp "
                    "\""
                    (mapconcat #'expand-file-name cp path-separator)
-                   "\""
-                   )))
+                   "\"")))
+      
       (user-error "No test found in current file! Is the file saved?"))))
 
 (defun eglot-java-run-main (debug)
@@ -1024,7 +1024,7 @@ debug mode."
                                                        (mapcar
                                                         (lambda (x)
                                                           (gethash "values" x))
-                                                        (gethash "values"  (gethash "dependencies" starter-metadata ))))))
+                                                        (gethash "values"  (gethash "dependencies" starter-metadata))))))
          (dest-dir          (read-directory-name "Project Directory: "
                                                  (expand-file-name (cadr (assoc "artifactId" simple-params)) eglot-java-workspace-folder))))
     (unless (file-exists-p dest-dir)
@@ -1040,7 +1040,7 @@ debug mode."
                                                                          (mapconcat
                                                                           #'identity
                                                                           (nconc simple-deps)
-                                                                          "," ))))))))
+                                                                          ","))))))))
       (url-copy-file source-url dest-file-name t)
       (dired (file-name-directory dest-file-name))
       (revert-buffer))))
@@ -1200,7 +1200,7 @@ debug mode."
                                                                                                           t)
                                                                                 ",")
                                                                      params))
-                       (t (puthash k (read-string (format "%s: " (plist-get item :label)) (plist-get item :default) )
+                       (t (puthash k (read-string (format "%s: " (plist-get item :label)) (plist-get item :default))
                                    params)))))
              starter-metadata)
     (let ((dest-dir     (expand-file-name (gethash "artifactId" params) proj-parent-dir))
