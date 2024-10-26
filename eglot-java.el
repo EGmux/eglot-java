@@ -104,37 +104,23 @@
   :type 'boolean
   :group 'eglot-java)
 
-(defun eglot-java-find-deps (dir &rest args)
-  (let ((plugins
-         (cdr (cdr (directory-files dir))))
-        (fixed-path ()))
-    (progn
-      (setq fixed-path (mapcar (lambda (plugin) (concat dir "/" plugin)) plugins))
-      (append fixed-path args))))
-
-(eglot-java-find-deps "/nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/jdtls/plugins")    
-
 (defcustom eglot-java-eclipse-jdt-args
-  (eglot-java-find-deps "/nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/jdtls/plugins"
-                        "-Xmx1G"
-                        "-Declipse.application=org.eclipse.jdt.ls.core.id1"
-                        "-Dosgi.bundles.defaultStartLevel=4"
-                        "-Declipse.product=org.eclipse.jdt.ls.core.product"
-                        "-Dosgi.sharedConfiguration.area=/nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/share/java/jdtls/config_linux"
-                        "-Dosgi.sharedConfiguration.area.readOnly=true"
-                        "-Dosgi.checkConfiguration=true"
-                        "-Dosgi.configuration.cascaded=true"
-                        "-Dlog.level=ALL"
-                        "--add-modules=ALL-SYSTEM"
-                        "--add-opens java.base/java.util=ALL-UNNAMED"
-                        "--add-opens java.base/java.lang=ALL-UNNAMED")
+  '("-Dosgi.sharedConfiguration.area.readOnly=true"
+    "-Dosgi.checkConfiguration=true"
+    "-Dlog.level=ALL"
+    "-Dosgi.configuration.cascaded=true"
+    "--add-modules=ALL-SYSTEM"
+    "--add-opens"
+    "java.base/java.util=ALL-UNNAMED"
+    "--add-opens"
+    "java.base/java.lang=ALL-UNNAMED")
   "Eclipse JDT JVM arguments."
   :type '(repeat string)
   :risky t
   :group 'eglot-java)
 
 (defcustom eglot-java-eclipse-jdt-config-directory
-  nil
+  (file-truename "~/Projects/config_linux/")
   "Custom folder containing the JDT LS config.ini file to use."
   :type 'directory
   :group 'eglot-java)
@@ -181,10 +167,10 @@
   "Maven repository root URL."
   :type 'string
   :risky t
-  :group 'eglot-java)
+  :group 'eglot-)
 
 (defcustom eglot-java-server-install-dir
-  (file-truename "/nix/store/k3fnfk4ckqcb2l8pmijq84nhrrd4bss3-jdt-language-server-1.31.0/bin")
+  (file-truename "/nix/store/jwrrdzzyfnfbmjb6kz092bxs6nf2qlwx-jdt-language-server-1.40.0/")
   "Location of the Eclipse Java language server installation."
   :type 'directory
   :group 'eglot-java)
@@ -1454,7 +1440,7 @@ DESTINATION-DIR is the directory where the LSP server will be installed."
 (defun eglot-java--jdt-uri-handler (_operation &rest args)
   "Support Eclipse jdtls `jdt://' uri scheme."
   (let* ((uri (car args))
-         (cache-dir (expand-file-name ".eglot-java" (temporary-file-directory)))
+         (cache-dir (expand-file-name ".eglot-java" (project-root (project-current))))
          (source-file
           (expand-file-name
            (eglot-java--make-path
